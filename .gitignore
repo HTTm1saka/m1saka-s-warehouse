@@ -1,0 +1,39 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.dll
+*.lib
+*.pdb
+
+# 构建目录
+output/
+build/
+debug/
+release/
+
+# IDE / 编辑器
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+
+# CP Editor 缓存
+.cph/
+
+# 临时文件
+*.bat
+*.tmp
+*.log
+repo_status.txt
+check_repo.bat
+
+# 已存在的子仓库(不应嵌套提交)
+m1saka-s-warehouse/
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store
