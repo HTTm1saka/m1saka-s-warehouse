@@ -16,5 +16,8 @@ int main(){
     else
         cout << "you are a boomer";
     cout << endl;
+    cout << "Press Enter to exit...";
+    cin.ignore(1000, '\n');
+    cin.get();
     return 0;
 }
