@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>函数计算器</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+<style>
+/* ============================================================
+   Windows XP 主题 —— Luna 蓝 / 青灰色 视觉
+   ============================================================ */
+:root{
+  --gray:#ECE9D8;   /* XP 面板青灰 */
+  --gray2:#D4D0C8;  /* 较暗面板 */
+  --border:#7A7A7A;
+  --win-blue:#0831D9;
+  --hl:#316AC5;     /* 悬停高亮蓝 */
+  --sky:linear-gradient(180deg,#104E8B 0%,#3A79C0 42%,#7FAFE0 70%,#C9E3F7 86%,#EEF7FF 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:Tahoma,"Microsoft Sans Serif","SimSun","宋体",sans-serif;
+  font-size:12px; color:#000;
+  background:var(--sky);
+  overflow:hidden; user-select:none;
+}
+input,textarea{user-select:text}
+
+/* ---------- 桌面图标 ---------- */
+.desktop-icon{
+  position:fixed; top:8px; left:8px; width:78px; text-align:center;
+  color:#fff; cursor:default; z-index:10; padding:6px 2px 4px;
+  text-shadow:0 1px 3px rgba(0,0,20,.8);
+}
+.desktop-icon:hover{background:rgba(80,140,255,.35);border:1px solid rgba(255,255,255,.4);border-radius:4px;padding:5px 1px 3px}
+.di-img{font-size:36px;line-height:1;filter:drop-shadow(1px 2px 2px rgba(0,0,20,.5))}
+.di-label{font-size:11px;line-height:1.35;margin-top:2px;word-break:break-all}
+.di-label::selection{background:transparent}
+
+/* ---------- 主窗口 ---------- */
+.window{
+  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(840px,96vw); height:min(600px,92vh);
+  border:1px solid var(--win-blue); border-radius:8px 8px 4px 4px;
+  background:var(--gray);
+  box-shadow:6px 8px 42px rgba(0,10,40,.45);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.window.maximized{
+  transform:none; border-radius:0;
+  left:0!important; top:0!important;
+  width:100vw!important; height:calc(100vh - 30px)!important;
+}
+.window.hidden{display:none}
+
+/* 标题栏（XP Luna 渐变） */
+.titlebar{
+  flex:none; height:28px; border-radius:7px 7px 0 0;
+  background:linear-gradient(180deg,
+    #0058EE 0%,#3593FF 4%,#288EFF 6%,#127DFF 8%,#036FFC 10%,#0262EE 14%,
+    #0057E5 20%,#0054E0 24%,#0051DC 28%,#0050DB 30%,#004FD9 32%,#004ED8 34%,
+    #004ED8 36%,#004DD7 40%,#004DD6 44%,#004DD5 48%,#004CD4 52%,#004CD3 56%,
+    #004BD2 60%,#004BD1 64%,#004BD1 68%,#004ACF 72%,#0049CC 76%,#0048C8 80%,
+    #0046C1 84%,#0042B6 88%,#003CAA 92%,#00319B 96%,#002285 100%);
+  display:flex; align-items:center; justify-content:space-between;
+  padding-left:8px; color:#fff; cursor:default;
+}
+.window.maximized .titlebar{border-radius:0}
+.title-text{font-size:13px;font-weight:bold;display:flex;align-items:center;gap:6px;text-shadow:0 1px 1px rgba(0,0,0,.55)}
+.cap-btns{display:flex;gap:3px;padding-right:4px}
+.cap-btn{
+  width:23px;height:21px;border:1px solid rgba(255,255,255,.55);border-radius:3px;
+  color:#fff;font-size:9px;line-height:1;cursor:default;
+  box-shadow:1px 1px 2px rgba(0,0,0,.4), inset 0 0 1px rgba(255,255,255,.6);
+  font-family:Tahoma;
+}
+.cap-btn:active{transform:translateY(1px)}
+.cap-btn.min,.cap-btn.max{background:linear-gradient(180deg,#FFDF8A,#E8A92E 60%,#D1911C);color:#5A2D00}
+.cap-btn.close{background:linear-gradient(180deg,#FF8C8C,#E0342B 55%,#C91F16)}
+
+/* 菜单栏 */
+.menubar{
+  flex:none; display:flex; padding:2px 0; border-bottom:1px solid #D6D0C4;
+  background:var(--gray); position:relative; z-index:100;
+}
+.menu{position:relative; padding:3px 10px; border-radius:3px}
+.menu:hover,.menu.open{background:var(--hl); color:#fff}
+.dropdown{
+  position:absolute; top:100%; left:0; min-width:190px; display:none;
+  background:#fff; border:1px solid var(--border);
+  box-shadow:3px 3px 8px rgba(0,0,0,.35); padding:2px; z-index:300;
+}
+.menu.open .dropdown{display:block}
+.mi{display:flex; justify-content:space-between; gap:24px; padding:4px 10px; border-radius:2px; white-space:nowrap}
+.mi:hover{background:var(--hl); color:#fff}
+.mi .short{color:#999}
+.mi:hover .short{color:#CEE0FF}
+.mi .chk{color:#000; min-width:12px; text-align:right}
+.mi:hover .chk{color:#fff}
+.sep{height:1px; background:var(--border); margin:3px 5px}
+
+/* 内容区 */
+.content{flex:1; overflow:auto; padding:10px; background:var(--gray)}
+.view{display:none}
+.view.active{display:flex; flex-direction:column; height:100%}
+
+/* ---------- 状态栏 ---------- */
+.statusbar{
+  flex:none; display:flex; align-items:center; gap:12px; padding:3px 10px;
+  font-size:11px; color:#1a1a1a; background:var(--gray);
+  border-top:1px solid var(--border);
+}
+.statusbar .sep2{color:#8a8a8a}
+#stMem{margin-left:auto}
+
+/* ---------- 立体感通用 ---------- */
+.raised{background:var(--gray2); border-top:1px solid #fff; border-left:1px solid #fff; border-right:1px solid #808080; border-bottom:1px solid #808080}
+.sunken{background:#fff; border-top:1px solid #808080; border-left:1px solid #808080; border-right:1px solid #fff; border-bottom:1px solid #fff}
+.groove{border:2px solid; border-color:#808080 #fff #fff #808080}
+.caption{
+  background:linear-gradient(180deg,#0A246A,#A6CAF0 70%,#8FB8E8);
+  color:#fff; font-weight:bold; font-size:12px; padding:2px 8px; border-radius:2px;
+}
+
+/* ---------- XP 按钮 ---------- */
+.xp-btn{
+  font-family:inherit; font-size:12px; color:#000; cursor:default;
+  background:linear-gradient(180deg,#fff 0%,#ECE9E1 45%,#D8D0C4 50%,#CDBDA3 100%);
+  border:1px solid #003C74; border-radius:3px; padding:4px 12px;
+}
+.xp-btn:hover{filter:brightness(1.05)}
+.xp-btn:active{background:linear-gradient(180deg,#9A9A9A 0%,#BFBFBF 50%,#E0E0E0 100%);border-color:#333}
+.xp-btn:disabled{color:#999;filter:none;cursor:default}
+
+/* 计算器按键 */
+.key{
+  font-family:Tahoma; font-size:13px; color:#000; cursor:default;
+  background:linear-gradient(180deg,#fff 0%,#ECE9E1 45%,#D8D0C4 50%,#CDBDA3 100%);
+  border:1px solid var(--border); border-radius:2px; padding:7px 0; min-width:0;
+}
+.key:hover{filter:brightness(1.07)}
+.key:active{background:linear-gradient(180deg,#B9B9B9 0%,#D9D9D9 50%,#FFF 100%);border-color:#333}
+.key.span2{grid-column:span 2}
+.key.acc{background:linear-gradient(180deg,#D9D6CB 0%,#C4BEAF 45%,#B0A896 50%,#A09886 100%)}
+
+/* 显示区 */
+.display{
+  flex:none; background:#fff; margin-bottom:8px; position:relative;
+  border:1px solid var(--border);
+  box-shadow:inset 2px 2px 3px rgba(0,0,0,.22);
+  text-align:right; padding:6px 12px 10px; overflow:hidden;
+  font-family:"Consolas","Lucida Console",monospace;
+}
+#memInd{position:absolute; left:6px; top:6px; font-size:12px; font-weight:bold; color:#C00}
+.expr{font-size:13px; color:#555; min-height:16px; word-break:break-all}
+.result{font-size:30px; font-weight:bold; line-height:1.25; word-break:break-all}
+.result.prev{font-size:20px; font-weight:normal; color:#333}
+.result.err{font-size:15px; font-weight:normal; color:#B00}
+
+.keys{
+  flex:1; display:grid; grid-template-columns:repeat(6,1fr);
+  gap:4px; align-content:start;
+}
+
+/* ---------- 输入框 ---------- */
+.xp-input{
+  font-family:inherit; font-size:12px; padding:3px 5px; width:100%;
+  background:#fff; border:2px solid; border-color:#6a6a6a #fff #fff #6a6a6a; outline:none;
+}
+.xp-input:focus{border-color:#316AC5 #fff #fff #316AC5}
+
+/* ---------- 函数绘图 ---------- */
+.plot-toolbar{flex:none; display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap}
+#coordReadout{font-family:"Consolas",monospace; font-size:12px; color:#111; margin-left:auto; background:#fff; padding:3px 8px; border:1px solid var(--border)}
+.plot-body{flex:1; display:flex; gap:10px; min-height:0}
+.fnpanel{flex:none; width:212px; display:flex; flex-direction:column; gap:8px; overflow:auto; padding:6px; border:1px solid var(--border); background:#E8E5D8}
+.fnrow{display:flex; align-items:center; gap:5px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.3)}
+.fn-eq{flex:none; color:#444; font-family:"Consolas",monospace}
+.fnrow .xp-input{flex:1; min-width:0; font-family:"Consolas",monospace}
+.fn-del{border:1px solid var(--border);background:var(--gray2);width:20px;height:20px;font-size:11px;cursor:default;border-radius:2px}
+.fn-del:hover{background:#E8A5A5}
+.fn-err{color:#B00; font-size:11px; padding-left:17px; line-height:1.3}
+.chips{display:flex; flex-wrap:wrap; gap:4px}
+.chip{border:1px solid var(--border); background:#fff; font-family:"Consolas",monospace; font-size:11px; padding:2px 7px; cursor:default; border-radius:2px}
+.chip:hover{background:var(--hl); color:#fff; border-color:var(--hl)}
+.hint{color:#444; font-size:11px; line-height:1.7}
+.canvas-box{
+  flex:1; min-width:0; position:relative;
+  border:2px solid; border-color:#808080 #fff #fff #808080; background:#fff;
+}
+#cv{position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:crosshair}
+
+/* ---------- 任务栏 ---------- */
+.taskbar{
+  position:fixed; left:0; right:0; bottom:0; height:30px; z-index:200;
+  background:linear-gradient(180deg,#3D83E0 0%,#2C6DD1 12%,#2B6CD0 55%,#1D56B8 92%,#14439A 100%);
+  border-top:1px solid #79A8E8;
+  display:flex; align-items:center; gap:6px; padding:0 6px;
+}
+.start-btn{
+  height:24px; font-weight:bold; font-size:12px; color:#fff; cursor:default;
+  background:linear-gradient(180deg,#5B9B34 0%,#4C8A2A 45%,#3C7620 50%,#2A5C14 100%);
+  border:1px solid #1E4D0D; border-radius:3px; padding:0 12px;
+  display:flex; align-items:center; gap:5px;
+}
+.start-btn:active{background:linear-gradient(180deg,#2A5C14 0%,#3C7620 50%,#4C8A2A 100%)}
+.tasks{flex:1; display:flex; gap:4px; overflow:hidden}
+.task{
+  height:24px; min-width:150px; max-width:200px; color:#fff; font-size:12px; cursor:default;
+  background:linear-gradient(180deg,#6FA4EE 0%,#5B8FE0 45%,#4A7FD6 50%,#3F74CC 100%);
+  border:1px solid #1D4BA0; border-radius:3px; padding:0 10px; text-align:left;
+  display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;
+}
+.task:hover{filter:brightness(1.1)}
+.task.pressed{background:linear-gradient(180deg,#1A3F8E 0%,#2C5FBB 50%,#3A6FD0 100%);box-shadow:inset 1px 1px 3px rgba(0,0,0,.5)}
+.tray{height:24px; background:linear-gradient(180deg,#1D56B8,#14439A); border:1px solid #0C2E6E; border-radius:3px; color:#fff; font-size:11px; display:flex; align-items:center; padding:0 8px; gap:8px}
+
+/* 开始菜单 */
+.startmenu{
+  position:fixed; left:4px; bottom:34px; width:200px; display:none;
+  background:var(--gray); border:1px solid var(--win-blue); border-radius:6px 6px 0 0;
+  box-shadow:3px 3px 12px rgba(0,0,0,.45); padding:4px; z-index:300;
+}
+.startmenu.open{display:block}
+.sm-title{background:linear-gradient(180deg,#0A246A,#A6CAF0 70%,#8FB8E8);color:#fff;font-weight:bold;padding:3px 9px;border-radius:3px;margin-bottom:4px;font-size:12px}
+.sm-item{padding:6px 10px; border-radius:2px; font-size:12px}
+.sm-item:hover{background:var(--hl); color:#fff}
+.sm-item .sm-ic{margin-right:8px}
+
+/* ---------- 关于对话框 ---------- */
+.overlay{position:fixed; inset:0; background:rgba(0,10,40,.4); display:flex; align-items:center; justify-content:center; z-index:500}
+.dlg{width:380px; background:var(--gray); border:1px solid var(--win-blue); border-radius:8px 8px 0 0; box-shadow:5px 5px 24px rgba(0,0,0,.5)}
+.dlg-title{
+  padding:4px 10px; color:#fff; font-weight:bold; font-size:13px; border-radius:7px 7px 0 0;
+  background:linear-gradient(180deg,#0058EE 0%,#3593FF 6%,#127DFC 12%,#0057E5 22%,#0051DC 40%,#004BD2 70%,#0036A8 100%);
+}
+.dlg-body{display:flex; gap:14px; padding:18px 16px 6px; align-items:flex-start}
+.dlg-icon{font-size:46px; line-height:1}
+.dlg-text{font-size:12px; line-height:1.7; color:#111}
+.dlg-text b{font-size:14px}
+.dlg-btns{text-align:right; padding:10px 14px 14px}
+
+@media(max-width:640px){
+  .plot-body{flex-direction:column}
+  .fnpanel{width:100%; flex:none}
+  .canvas-box{height:300px}
+}
+</style>
+</head>
+<body>
+
+<!-- 桌面图标 -->
+<div class="desktop-icon" id="desktopIcon" title="双击打开 函数计算器">
+  <div class="di-img">🧮</div>
+  <div class="di-label">函数计算器</div>
+</div>
+
+<!-- 主窗口 -->
+<div class="window" id="win">
+  <div class="titlebar" id="titlebar">
+    <div class="title-text">🧮 函数计算器</div>
+    <div class="cap-btns">
+      <button class="cap-btn min" id="capMin" title="最小化">─</button>
+      <button class="cap-btn max" id="capMax" title="最大化">□</button>
+      <button class="cap-btn close" id="capClose" title="关闭">✕</button>
+    </div>
+  </div>
+
+  <div class="menubar" id="menubar">
+    <div class="menu">文件(F)
+      <div class="dropdown">
+        <div class="mi" data-act="copy">复制结果<span class="short">Ctrl+C</span></div>
+        <div class="sep"></div>
+        <div class="mi" data-act="exit">退出</div>
+      </div>
+    </div>
+    <div class="menu">编辑(E)
+      <div class="dropdown">
+        <div class="mi" data-act="paste">粘贴到表达式<span class="short">Ctrl+V</span></div>
+        <div class="mi" data-act="clear">清空<span class="short">Esc</span></div>
+      </div>
+    </div>
+    <div class="menu">查看(V)
+      <div class="dropdown">
+        <div class="mi" data-act="view-std">标准型<span class="chk">✓</span></div>
+        <div class="mi" data-act="view-sc">科学型<span class="chk"></span></div>
+        <div class="mi" data-act="view-plot">函数绘图<span class="chk"></span></div>
+        <div class="sep"></div>
+        <div class="mi" data-act="deg">角度制(DEG)<span class="chk">✓</span></div>
+      </div>
+    </div>
+    <div class="menu">帮助(H)
+      <div class="dropdown">
+        <div class="mi" data-act="about">关于 函数计算器</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 标准型 -->
+    <div id="view-std" class="view active">
+      <div class="display">
+        <span id="memInd" style="display:none">M</span>
+        <div class="expr" id="expr"></div>
+        <div class="result" id="result">0</div>
+      </div>
+      <div class="keys" id="keysStd"></div>
+    </div>
+
+    <!-- 科学型 -->
+    <div id="view-sc" class="view">
+      <div class="display">
+        <span id="memInd2" style="display:none">M</span>
+        <div class="expr" id="expr2"></div>
+        <div class="result" id="result2">0</div>
+      </div>
+      <div class="keys" id="keysSci"></div>
+    </div>
+
+    <!-- 函数绘图 -->
+    <div id="view-plot" class="view">
+      <div class="plot-toolbar">
+        <button class="xp-btn" id="addFn">＋ 添加函数…</button>
+        <button class="xp-btn" id="resetView">⌂ 复位视图</button>
+        <button class="xp-btn" id="zoomIn">放大＋</button>
+        <button class="xp-btn" id="zoomOut">缩小－</button>
+        <span id="coordReadout">x: —   y: —</span>
+      </div>
+      <div class="plot-body">
+        <div class="fnpanel">
+          <div class="caption">函数列表</div>
+          <div id="fnList" style="display:flex;flex-direction:column;gap:6px"></div>
+          <div class="caption">示例函数</div>
+          <div class="chips" id="chips"></div>
+          <div class="hint">
+            拖拽平移 · 滚轮缩放 · 双指缩放<br>
+            双击画布复位 · 悬停读坐标<br>
+            <b>自变量 x，弧度制。</b>
+          </div>
+        </div>
+        <div class="canvas-box" id="canvasBox">
+          <canvas id="cv"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="statusbar">
+    <span id="stView">标准型</span>
+    <span class="sep2">|</span>
+    <span id="stAngle">角度制(DEG)</span>
+    <span id="stMem">内存: 空</span>
+    <span class="sep2">|</span>
+    <span id="stCoord">坐标: —</span>
+  </div>
+</div>
+
+<!-- 任务栏 -->
+<div class="taskbar">
+  <button class="start-btn" id="startBtn"><span>◆</span> 开始</button>
+  <div class="tasks">
+    <button class="task" id="taskBtn">🧮 函数计算器</button>
+  </div>
+  <div class="tray"><span id="clock"></span></div>
+</div>
+
+<!-- 开始菜单 -->
+<div class="startmenu" id="startMenu">
+  <div class="sm-title">🧮 函数计算器</div>
+  <div class="sm-item" data-act="open"><span class="sm-ic">🧮</span>打开计算器</div>
+  <div class="sep"></div>
+  <div class="sm-item" data-act="about"><span class="sm-ic">ℹ️</span>关于</div>
+</div>
+
+<!-- 关于对话框 -->
+<div class="overlay" id="aboutOverlay" style="display:none">
+  <div class="dlg">
+    <div class="dlg-title">关于 函数计算器</div>
+    <div class="dlg-body">
+      <div class="dlg-icon">🧮</div>
+      <div class="dlg-text">
+        <b>函数计算器</b><br>
+        版本 1.0（Windows XP 风格）<br>
+        一个完全独立的 HTML5 计算器，支持标准 / 科学运算与函数绘图。<br>
+        表达式引擎不使用 eval()。
+      </div>
+    </div>
+    <div class="dlg-btns"><button class="xp-btn" id="aboutOk">确定</button></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+ * 独立实现的表达式引擎：tokenize → parseAST（递归下降）→ evalAST
+ * 不使用 eval() / new Function()
+ * 文法优先级（低到高）：加减 → 乘除及隐式乘法 → 一元(负号/√) → 幂 ^ → 后缀 %
+ * ===================================================================== */
+const D2R = Math.PI/180, R2D = 180/Math.PI;
+
+const FUNCS = {
+  sin:(a,c)=>Math.sin(c.deg?a[0]*D2R:a[0]),
+  cos:(a,c)=>Math.cos(c.deg?a[0]*D2R:a[0]),
+  tan:(a,c)=>Math.tan(c.deg?a[0]*D2R:a[0]),
+  asin:(a,c)=>{const r=Math.asin(a[0]);return c.deg?r*R2D:r},
+  acos:(a,c)=>{const r=Math.acos(a[0]);return c.deg?r*R2D:r},
+  atan:(a,c)=>{const r=Math.atan(a[0]);return c.deg?r*R2D:r},
+  sinh:a=>Math.sinh(a[0]), cosh:a=>Math.cosh(a[0]), tanh:a=>Math.tanh(a[0]),
+  asinh:a=>Math.asinh(a[0]), acosh:a=>Math.acosh(a[0]), atanh:a=>Math.atanh(a[0]),
+  sqrt:a=>Math.sqrt(a[0]), cbrt:a=>Math.cbrt(a[0]),
+  abs:a=>Math.abs(a[0]), sign:a=>Math.sign(a[0]),
+  floor:a=>Math.floor(a[0]), ceil:a=>Math.ceil(a[0]), round:a=>Math.round(a[0]),
+  ln:a=>Math.log(a[0]), log:a=>Math.log10(a[0]), lg:a=>Math.log10(a[0]), log2:a=>Math.log2(a[0]),
+  exp:a=>Math.exp(a[0]),
+  min:a=>Math.min(...a), max:a=>Math.max(...a),
+  pow:a=>Math.pow(a[0],a[1]), atan2:a=>Math.atan2(a[0],a[1]),
+  mod:a=>((a[0]%a[1])+a[1])%a[1],
+};
+const FUNC_ARITY = {min:{min:1,max:99}, max:{min:1,max:99}, pow:{min:2,max:2},
+                    atan2:{min:2,max:2}, mod:{min:2,max:2}};
+
+function tokenize(src){
+  const T=[], n=src.length; let i=0;
+  const isD=c=>c>='0'&&c<='9';
+  const isA=c=>/[A-Za-zπ]/.test(c);
+  while(i<n){
+    const c=src[i];
+    if(c===' '||c==='\t'||c===' '){ i++; continue; }
+    if(isD(c)||c==='.'){
+      let j=i;
+      while(j<n && (isD(src[j])||src[j]==='.')) j++;
+      const s=src.slice(i,j);
+      if(s.split('.').length>2 || s==='.') throw new Error('数字格式错误');
+      T.push({t:'num', v:parseFloat(s)}); i=j; continue;
+    }
+    if(isA(c)){
+      let j=i;
+      while(j<n && isA(src[j])) j++;
+      T.push({t:'id', v:src.slice(i,j)}); i=j; continue;
+    }
+    const m={'+':'+','-':'-','−':'-','*':'*','×':'*','/':'/','÷':'/','^':'^',
+             '%':'%','(':'(',')':')',',':',','√':'√'}[c];
+    if(m){ T.push({t:'op', v:m}); i++; continue; }
+    throw new Error('无法识别的字符 "'+c+'"');
+  }
+  return T;
+}
+
+function parseAST(src){
+  const T=tokenize(src); let p=0;
+  const peek=()=>T[p];
+  const take=v=>{ if(p<T.length && T[p].t==='op' && T[p].v===v){ p++; return true; } return false; };
+
+  function parseExpr(){
+    let n=parseTerm();
+    for(;;){
+      if(take('+')) n={k:'add',l:n,r:parseTerm()};
+      else if(take('-')) n={k:'sub',l:n,r:parseTerm()};
+      else break;
+    }
+    return n;
+  }
+  function parseTerm(){
+    let n=parseUnary();
+    for(;;){
+      const t=peek();
+      if(!t) break;
+      if(t.t==='op' && (t.v==='*'||t.v==='/')){
+        p++;
+        n={k: t.v==='*'?'mul':'div', l:n, r:parseUnary()};
+      }else if(t.t==='num' || t.t==='id' || (t.t==='op'&&(t.v==='('||t.v==='√'))){
+        n={k:'mul', l:n, r:parseUnary()};               /* 隐式乘法 2x / 2sin(x) / 2(3) */
+      }else break;
+    }
+    return n;
+  }
+  function parseUnary(){
+    if(take('-')) return {k:'neg', a:parseUnary()};
+    if(take('+')) return parseUnary();
+    if(take('√')) return {k:'call', fn:'sqrt', args:[parseUnary()]};
+    return parsePower();
+  }
+  function parsePower(){
+    const base=parsePostfix();
+    if(take('^')) return {k:'pow', l:base, r:parseUnary()};   /* 右结合 2^3^2，指数可负 2^-3 */
+    return base;
+  }
+  function parsePostfix(){
+    let n=parseAtom();
+    while(take('%')) n={k:'pct', a:n};
+    return n;
+  }
+  function parseAtom(){
+    const t=T[p++];
+    if(!t) throw new Error('表达式不完整');
+    if(t.t==='num') return {k:'num', v:t.v};
+    if(t.t==='op' && t.v==='('){
+      const n=parseExpr();
+      if(!take(')')) throw new Error('缺少右括号 )');
+      return n;
+    }
+    if(t.t==='id'){
+      const name=t.v, lo=name.toLowerCase();
+      if(name==='π'||lo==='pi') return {k:'const', name:'pi'};
+      if(lo==='e') return {k:'const', name:'e'};
+      if(lo==='x')  return {k:'var', name:'x'};
+      if(lo==='ans')return {k:'var', name:'ans'};
+      if(FUNCS[lo]){
+        if(!take('(')) throw new Error(lo+' 后需要括号，如 '+lo+'(x)');
+        const args=[parseExpr()];
+        while(take(',')) args.push(parseExpr());
+        if(!take(')')) throw new Error('缺少右括号 )');
+        const ar=FUNC_ARITY[lo];
+        if(ar && (args.length<ar.min || args.length>ar.max))
+          throw new Error(lo+' 的参数个数不正确');
+        return {k:'call', fn:lo, args};
+      }
+      throw new Error('未知符号 "'+name+'"');
+    }
+    throw new Error('意外的 "'+t.v+'"');
+  }
+
+  const ast=parseExpr();
+  if(p<T.length) throw new Error('多余的内容');
+  return ast;
+}
+
+function evalAST(n,c){
+  switch(n.k){
+    case 'num':   return n.v;
+    case 'const': return n.name==='pi'?Math.PI:Math.E;
+    case 'var':   return n.name==='x' ? c.x : c.ans;
+    case 'neg':   return -evalAST(n.a,c);
+    case 'pct':   return evalAST(n.a,c)/100;
+    case 'add':   return evalAST(n.l,c)+evalAST(n.r,c);
+    case 'sub':   return evalAST(n.l,c)-evalAST(n.r,c);
+    case 'mul':   return evalAST(n.l,c)*evalAST(n.r,c);
+    case 'div':   return evalAST(n.l,c)/evalAST(n.r,c);
+    case 'pow':   return Math.pow(evalAST(n.l,c),evalAST(n.r,c));
+    case 'call':  return FUNCS[n.fn](n.args.map(a=>evalAST(a,c)), c);
+  }
+  throw new Error('内部错误');
+}
+function evaluate(src,ctx){ return evalAST(parseAST(src),ctx); }
+
+/* ---------- 数字格式化 ---------- */
+function fmt(v,prec){
+  prec=prec||12;
+  if(typeof v!=='number'||Number.isNaN(v)) return '错误';
+  if(!isFinite(v)) return v>0?'∞':'-∞';
+  if(Object.is(v,-0)) v=0;
+  const a=Math.abs(v);
+  if(a!==0 && (a>=1e12 || a<1e-9)){
+    const e=Math.floor(Math.log10(a));
+    return parseFloat((v/Math.pow(10,e)).toPrecision(10))+'e'+(e<0?'-':'+')+(e<0?-e:e).toString().padStart(2,'0');
+  }
+  if(a<1) return parseFloat(v.toFixed(Math.min(12,prec))).toString();
+  return String(parseFloat(v.toPrecision(prec)));
+}
+function fmtNum(v){
+  if(!isFinite(v)) return '∞';
+  if(Object.is(v,-0)) v=0;
+  if(v===0) return '0';
+  const a=Math.abs(v);
+  if(a>=1e6||a<1e-4) return v.toExponential(2).replace('e+','e');
+  return String(parseFloat(v.toFixed(4)));
+}
+
+/* =====================================================================
+ * 窗口管理：拖动 / 最小化 / 最大化 / 关闭
+ * ===================================================================== */
+const win=document.getElementById('win');
+const titlebar=document.getElementById('titlebar');
+let isMax=false, prevRect=null, drag=null;
+
+function centerWin(){
+  const w=win.offsetWidth, h=win.offsetHeight;
+  win.style.left=Math.max(2,(window.innerWidth-w)/2)+'px';
+  win.style.top =Math.max(2,(window.innerHeight-h)/2)+'px';
+  win.style.transform='none';
+}
+titlebar.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.cap-btn')) return;
+  if(isMax) return;
+  drag={dx:e.clientX-win.offsetLeft, dy:e.clientY-win.offsetTop};
+  titlebar.setPointerCapture(e.pointerId);
+});
+titlebar.addEventListener('pointermove',e=>{
+  if(!drag) return;
+  const l=Math.min(Math.max(-win.offsetWidth+90,e.clientX-drag.dx), window.innerWidth-40);
+  const t=Math.min(Math.max(0,e.clientY-drag.dy), window.innerHeight-40);
+  win.style.left=l+'px'; win.style.top=t+'px';
+});
+titlebar.addEventListener('pointerup',()=>drag=null);
+titlebar.addEventListener('pointercancel',()=>drag=null);
+
+function minimize(){ win.classList.add('hidden'); taskBtn.classList.add('pressed'); }
+function closeWin(){ win.classList.add('hidden'); taskBtn.classList.add('pressed'); }
+function restore(){
+  win.classList.remove('hidden'); taskBtn.classList.remove('pressed');
+  if(isMax) return;
+  const r=win.getBoundingClientRect();
+  if(r.left>window.innerWidth-60||r.top>window.innerHeight-40) centerWin();
+}
+function toggleMax(){
+  if(!isMax){
+    prevRect={l:win.style.left,t:win.style.top};
+    win.classList.add('maximized');
+    document.getElementById('capMax').textContent='❐';
+    isMax=true;
+  }else{
+    win.classList.remove('maximized');
+    win.style.left=prevRect.l; win.style.top=prevRect.t;
+    document.getElementById('capMax').textContent='□';
+    isMax=false;
+  }
+}
+document.getElementById('capMin').addEventListener('click',minimize);
+document.getElementById('capMax').addEventListener('click',toggleMax);
+document.getElementById('capClose').addEventListener('click',closeWin);
+
+/* =====================================================================
+ * 菜单
+ * ===================================================================== */
+const menus=document.querySelectorAll('.menu');
+function closeMenus(){ menus.forEach(m=>m.classList.remove('open')); }
+menus.forEach(m=>m.addEventListener('click',e=>{
+  e.stopPropagation();
+  const was=m.classList.contains('open');
+  closeMenus();
+  if(!was) m.classList.add('open');
+}));
+document.addEventListener('click',()=>{ closeMenus(); startMenu.classList.remove('open'); });
+
+/* =====================================================================
+ * 计算器核心
+ * ===================================================================== */
+const calc={expr:'', ans:0, deg:true, justEq:false};
+let memory=0, view='std';
+
+const exprEls={std:document.getElementById('expr'), sc:document.getElementById('expr2')};
+const resEls ={std:document.getElementById('result'), sc:document.getElementById('result2')};
+const memIEls={std:document.getElementById('memInd'), sc:document.getElementById('memInd2')};
+const stView=document.getElementById('stView');
+const stAngle=document.getElementById('stAngle');
+const stMem=document.getElementById('stMem');
+const stCoord=document.getElementById('stCoord');
+
+const MULTI=['sinh(','cosh(','tanh(','asinh(','acosh(','atanh(','atan2(',
+             'asin(','acos(','atan(','sqrt(','cbrt(','floor(','ceil(','round(',
+             'sign(','log2(','mod(','min(','max(','pow(','abs(','exp(',
+             'sin(','cos(','tan(','ln(','log(','lg(','√(','Ans','00']
+  .sort((a,b)=>b.length-a.length);
+
+function refresh(){
+  if(view==='plot') return;   /* 绘图视图没有算式/结果显示区 */
+  const ex=exprEls[view], rs=resEls[view];
+  ex.textContent=calc.expr;
+  if(!calc.expr){ rs.textContent='0'; rs.className='result'; return; }
+  try{
+    const v=evaluate(calc.expr,{x:0, ans:calc.ans, deg:calc.deg});
+    rs.textContent=(typeof v==='number'&&!Number.isNaN(v))?fmt(v):'…';
+    rs.className='result prev';
+  }catch(e){ rs.textContent='…'; rs.className='result prev'; }
+}
+function insert(v){
+  if(calc.justEq){
+    const isOp=['+','−','×','÷','^','%'].includes(v);
+    calc.expr = (isOp&&v!=='=') ? 'Ans'+v : '';
+    calc.justEq=false;
+  }
+  if(v!=='=') calc.expr+=v;
+  refresh();
+}
+function backspace(){
+  if(calc.justEq){ calc.expr=''; calc.justEq=false; refresh(); return; }
+  for(const m of MULTI){
+    if(calc.expr.endsWith(m)){ calc.expr=calc.expr.slice(0,-m.length); refresh(); return; }
+  }
+  calc.expr=calc.expr.slice(0,-1); refresh();
+}
+function clearExpr(){ calc.expr=''; calc.justEq=false; refresh(); }
+function clearAll(){ calc.expr=''; calc.justEq=false; refresh(); }
+function pressEq(){
+  if(!calc.expr) return;
+  try{
+    const v=evaluate(calc.expr,{x:0, ans:calc.ans, deg:calc.deg});
+    if(typeof v!=='number'||Number.isNaN(v)) throw new Error('结果无意义');
+    calc.ans=v;
+    exprEls[view].textContent=calc.expr+' =';
+    resEls[view].className='result';
+    resEls[view].textContent=fmt(v);
+    calc.expr=isFinite(v)?fmt(v):'Ans';
+    calc.justEq=true;
+  }catch(err){
+    resEls[view].className='result err';
+    resEls[view].textContent=err.message;
+  }
+}
+function wrap(f,t){ return (a)=>{ if(!calc.expr){ insert(a); return; } calc.expr=f+calc.expr+t; refresh(); }; }
+const actSqrt   = wrap('√(',')');
+const actInv    = wrap('1/(',')');
+const actSquare = wrap('(',')^2');
+function actNegate(){ if(!calc.expr){ insert('−'); return; } calc.expr='−('+calc.expr+')'; refresh(); }
+function getValue(){
+  if(!calc.expr) return calc.ans;
+  try{ return evaluate(calc.expr,{x:0, ans:calc.ans, deg:calc.deg}); }
+  catch(e){ return NaN; }
+}
+function memSync(){
+  const has=memory!==0;
+  memIEls.std.style.display=memIEls.sc.style.display=has?'block':'none';
+  stMem.textContent=has?'M 内存: '+fmt(memory):'内存: 空';
+}
+function memStore(){ memory=getValue(); memSync(); }
+function memAdd(){ memory+=getValue(); memSync(); }
+function memClear(){ memory=0; memSync(); }
+function memRecall(){ insert(fmt(memory)); }
+
+/* 按键布局 */
+const STD_KEYS=[
+  [{l:'Backspace',act:'back',span:2},{l:'CE',act:'clearExpr'},{l:'C',act:'clearAll'}],
+  [{l:'MC',act:'memClear'},{l:'7',ins:'7'},{l:'8',ins:'8'},{l:'9',ins:'9'},{l:'÷',ins:'÷'},{l:'√',act:'sqrt'}],
+  [{l:'MR',act:'memRecall'},{l:'4',ins:'4'},{l:'5',ins:'5'},{l:'6',ins:'6'},{l:'×',ins:'×'},{l:'%',act:'percent'}],
+  [{l:'MS',act:'memStore'},{l:'1',ins:'1'},{l:'2',ins:'2'},{l:'3',ins:'3'},{l:'−',ins:'−'},{l:'1/x',act:'inv'}],
+  [{l:'M+',act:'memAdd'},{l:'0',ins:'0'},{l:'±',act:'negate'},{l:'.',ins:'.'},{l:'+',ins:'+'},{l:'=',act:'eq'}],
+];
+const SCI_KEYS=[
+  [{l:'MC',act:'memClear'},{l:'MR',act:'memRecall'},{l:'MS',act:'memStore'},{l:'M+',act:'memAdd'},{l:'C',act:'clearAll'},{l:'⌫',act:'back'}],
+  [{l:'sin',fn:'sin('},{l:'cos',fn:'cos('},{l:'tan',fn:'tan('},{l:'π',ins:'π'},{l:'e',ins:'e'},{l:'√',act:'sqrt'}],
+  [{l:'asin',fn:'asin('},{l:'acos',fn:'acos('},{l:'atan',fn:'atan('},{l:'ln',fn:'ln('},{l:'log',fn:'log('},{l:'lg',fn:'lg('}],
+  [{l:'(',ins:'('},{l:')',ins:')'},{l:'^',ins:'^'},{l:'%',act:'percent'},{l:'cbrt',fn:'cbrt('},{l:'abs',fn:'abs('}],
+  [{l:'7',ins:'7'},{l:'8',ins:'8'},{l:'9',ins:'9'},{l:'÷',ins:'÷'},{l:'x²',act:'square'},{l:'1/x',act:'inv'}],
+  [{l:'4',ins:'4'},{l:'5',ins:'5'},{l:'6',ins:'6'},{l:'×',ins:'×'},{l:'mod',fn:'mod('},{l:'exp',fn:'exp('}],
+  [{l:'1',ins:'1'},{l:'2',ins:'2'},{l:'3',ins:'3'},{l:'−',ins:'−'},{l:'Ans',ins:'Ans'},{l:'±',act:'negate'}],
+  [{l:'0',ins:'0'},{l:'.',ins:'.'},{l:'00',ins:'00'},{l:'+',ins:'+'},{l:'=',act:'eq',span:2}],
+];
+const ACTS={
+  back:backspace, clearExpr:clearExpr, clearAll:clearAll,
+  sqrt:actSqrt, inv:actInv, square:actSquare, negate:actNegate,
+  percent:()=>insert('%'), eq:pressEq,
+  memClear:memClear, memRecall:memRecall, memStore:memStore, memAdd:memAdd,
+};
+function keyAction(k){
+  if(k.ins!==undefined){ insert(k.ins); return; }
+  if(k.fn){ insert(k.fn); return; }
+  const a=ACTS[k.act]; if(a) a();
+}
+function buildKeys(container,arr){
+  container.innerHTML='';
+  arr.forEach(row=>row.forEach(k=>{
+    const b=document.createElement('button');
+    b.className='key'+(k.span?' span'+k.span:'');
+    b.textContent=k.l;
+    b.addEventListener('click',()=>keyAction(k));
+    container.appendChild(b);
+  }));
+}
+buildKeys(document.getElementById('keysStd'),STD_KEYS);
+buildKeys(document.getElementById('keysSci'),SCI_KEYS);
+
+/* 视图切换 */
+function setView(v){
+  view=v;
+  ['std','sc','plot'].forEach(x=>
+    document.getElementById('view-'+x).classList.toggle('active',x===v));
+  const label={std:'标准型',sc:'科学型',plot:'函数绘图'}[v];
+  stView.textContent=label;
+  document.querySelectorAll('[data-act^="view-"]').forEach(b=>{
+    const c=b.querySelector('.chk');
+    if(c) c.textContent=b.dataset.act==='view-'+v?'✓':'';
+  });
+  if(v==='plot') requestAnimationFrame(resizeCanvas);
+  refresh();
+}
+function toggleDeg(){
+  calc.deg=!calc.deg;
+  stAngle.textContent=calc.deg?'角度制(DEG)':'弧度制(RAD)';
+  const c=document.querySelector('[data-act="deg"] .chk');
+  if(c) c.textContent=calc.deg?'✓':'';
+  refresh();
+}
+
+/* 键盘输入 */
+window.addEventListener('keydown',e=>{
+  if(win.classList.contains('hidden')) return;
+  if(view==='plot') return;
+  const ae=document.activeElement;
+  if(ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName)) return;
+  const k=e.key;
+  if((e.ctrlKey||e.metaKey)&&(k==='c'||k==='C')){ copyResult(); return; }
+  if((e.ctrlKey||e.metaKey)&&(k==='v'||k==='V')){ e.preventDefault(); paste(); return; }
+  if(/^[0-9.]$/.test(k)) insert(k);
+  else if(k==='+') insert('+');
+  else if(k==='-') insert('−');
+  else if(k==='*') insert('×');
+  else if(k==='/'){ e.preventDefault(); insert('÷'); }
+  else if(k==='^') insert('^');
+  else if(k==='('||k===')') insert(k);
+  else if(k==='%') insert('%');
+  else if(k==='p'||k==='P') insert('π');
+  else if(k==='Enter'||k==='='){ e.preventDefault(); pressEq(); }
+  else if(k==='Backspace'){ e.preventDefault(); backspace(); }
+  else if(k==='Escape') clearAll();
+});
+
+/* 剪贴板 */
+function copyResult(){
+  const txt=resEls[view].textContent||'0';
+  const fb=()=>{ const ta=document.createElement('textarea'); ta.value=txt;
+    document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');}catch(_){}
+    ta.remove(); };
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(txt).catch(fb);
+  else fb();
+}
+function paste(){
+  if(navigator.clipboard&&navigator.clipboard.readText)
+    navigator.clipboard.readText().then(t=>{ if(t) insert(t); }).catch(()=>{});
+}
+
+/* 菜单动作 */
+document.querySelectorAll('.mi').forEach(mi=>mi.addEventListener('click',e=>{
+  e.stopPropagation();
+  const act=mi.dataset.act;
+  if(act==='exit') closeWin();
+  else if(act==='copy') copyResult();
+  else if(act==='paste') paste();
+  else if(act==='clear') clearAll();
+  else if(act==='about') openAbout();
+  else if(act==='deg') toggleDeg();
+  else if(act==='view-std') setView('std');
+  else if(act==='view-sc') setView('sc');
+  else if(act==='view-plot') setView('plot');
+  closeMenus();
+}));
+
+/* 开始菜单 & 关于 */
+const startBtn=document.getElementById('startBtn');
+const startMenu=document.getElementById('startMenu');
+startBtn.addEventListener('click',e=>{
+  e.stopPropagation();
+  startMenu.classList.toggle('open');
+  closeMenus();
+});
+document.querySelectorAll('#startMenu .sm-item').forEach(it=>it.addEventListener('click',e=>{
+  e.stopPropagation();
+  const act=it.dataset.act;
+  if(act==='open'){ restore(); }
+  else if(act==='about') openAbout();
+  startMenu.classList.remove('open');
+}));
+const aboutOverlay=document.getElementById('aboutOverlay');
+function openAbout(){ aboutOverlay.style.display='flex'; }
+document.getElementById('aboutOk').addEventListener('click',()=>aboutOverlay.style.display='none');
+aboutOverlay.addEventListener('click',e=>{ if(e.target===aboutOverlay) aboutOverlay.style.display='none'; });
+
+/* 任务栏 & 桌面图标 */
+const taskBtn=document.getElementById('taskBtn');
+taskBtn.addEventListener('click',()=>{
+  if(win.classList.contains('hidden')) restore(); else minimize();
+});
+document.getElementById('desktopIcon').addEventListener('dblclick',()=>{
+  if(win.classList.contains('hidden')) restore();
+});
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent=d.toLocaleTimeString('zh-CN',{hour12:false});
+}
+tick(); setInterval(tick,1000);
+
+/* =====================================================================
+ * 函数绘图
+ * ===================================================================== */
+const PALETTE=['#1F5CC0','#C0392B','#1E8449','#B9770E','#6C3483','#148F77','#2E4053','#7D6608'];
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const canvasBox=document.getElementById('canvasBox');
+const plot={funcs:[], view:{xmin:-8,xmax:8,ymin:-4.5,ymax:4.5}, w:0,h:0, hover:null};
+let nextId=0;
+
+function nextColor(){
+  for(const c of PALETTE) if(!plot.funcs.some(f=>f.color===c)) return c;
+  return PALETTE[0];
+}
+function compileFn(f){
+  if(!f.expr.trim()){ f.ast=null; f.error=null; return; }
+  try{ f.ast=parseAST(f.expr); f.error=null; }
+  catch(e){ f.ast=null; f.error=e.message; }
+}
+function addFn(expr){
+  if(plot.funcs.length>=PALETTE.length) return;
+  const f={id:nextId++, expr:expr||'', color:nextColor(), ast:null, error:null};
+  compileFn(f);
+  plot.funcs.push(f);
+  renderFnList(); draw();
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderFnList(){
+  const list=document.getElementById('fnList');
+  list.innerHTML='';
+  plot.funcs.forEach(f=>{
+    const item=document.createElement('div');
+    const row=document.createElement('div'); row.className='fnrow';
+    const dot=document.createElement('span'); dot.className='dot'; dot.style.background=f.color;
+    const eq=document.createElement('span'); eq.className='fn-eq'; eq.textContent='y =';
+    const inp=document.createElement('input'); inp.className='xp-input';
+    inp.value=f.expr; inp.placeholder='如 sin(x)'; inp.spellcheck=false;
+    const err=document.createElement('div'); err.className='fn-err';
+    const del=document.createElement('button'); del.className='fn-del'; del.textContent='✕'; del.title='删除';
+    inp.addEventListener('input',()=>{
+      f.expr=inp.value; compileFn(f);
+      err.textContent=f.error||'';
+      err.style.display=f.error?'block':'none';
+      draw();
+    });
+    del.addEventListener('click',()=>{
+      plot.funcs=plot.funcs.filter(g=>g.id!==f.id);
+      plot.hover=null;
+      renderFnList(); draw();
+    });
+    row.append(dot,eq,inp,del);
+    item.append(row,err);
+    list.appendChild(item);
+    if(f.error){ err.textContent=f.error; err.style.display='block'; }
+  });
+}
+
+/* 画布 / 坐标 / 绘制 */
+function resizeCanvas(){
+  const r=canvasBox.getBoundingClientRect();
+  if(r.width<10||r.height<10) return;
+  const dpr=window.devicePixelRatio||1;
+  plot.w=r.width; plot.h=r.height;
+  cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+function resetView(){
+  const aspect=plot.h/plot.w||0.6;
+  const xr=16, yr=xr*aspect;
+  plot.view={xmin:-8, xmax:8, ymin:-yr/2, ymax:yr/2};
+}
+function niceStep(raw){
+  const p=Math.pow(10,Math.floor(Math.log10(raw)));
+  const m=raw/p;
+  return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p;
+}
+function fmtTick(v,step){
+  if(Math.abs(v)<step/1e6) return '0';
+  const a=Math.abs(v);
+  if(a>=1e6||a<1e-4) return v.toExponential(1).replace('e+','e');
+  const d=Math.max(0,-Math.floor(Math.log10(step)+1e-9));
+  return d===0?String(Math.round(v)):v.toFixed(d);
+}
+function draw(){
+  const {w,h}=plot;
+  if(w<50||h<50) return;
+  const v=plot.view;
+  const X=x=>(x-v.xmin)/(v.xmax-v.xmin)*w;
+  const Y=y=>(v.ymax-y)/(v.ymax-v.ymin)*h;
+  ctx.clearRect(0,0,w,h);
+  ctx.font='11px Tahoma,"Consolas",monospace';
+
+  const sx=niceStep((v.xmax-v.xmin)/(w/90));
+  const sy=niceStep((v.ymax-v.ymin)/(h/70));
+
+  /* 网格 */
+  ctx.lineWidth=1; ctx.strokeStyle='#DFDFDF';
+  ctx.textBaseline='top';
+  for(let k=Math.ceil(v.xmin/sx);k<=Math.floor(v.xmax/sx)&&k-Math.ceil(v.xmin/sx)<400;k++){
+    const px=Math.round(X(k*sx))+0.5;
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,h); ctx.stroke();
+    ctx.fillStyle='#555';
+    ctx.fillText(fmtTick(k*sx,sx),px+3,h-4);
+  }
+  ctx.textBaseline='bottom';
+  for(let k=Math.ceil(v.ymin/sy);k<=Math.floor(v.ymax/sy)&&k-Math.ceil(v.ymin/sy)<400;k++){
+    const gy=k*sy;
+    if(Math.abs(gy)<sy/2) continue;
+    const py=Math.round(Y(gy))+0.5;
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(w,py); ctx.stroke();
+    ctx.fillStyle='#555';
+    ctx.fillText(fmtTick(gy,sy),3,py-2);
+  }
+
+  /* 坐标轴 */
+  ctx.strokeStyle='#333'; ctx.lineWidth=1.4;
+  if(v.ymin<0&&v.ymax>0){ const y0=Y(0); ctx.beginPath(); ctx.moveTo(0,y0); ctx.lineTo(w,y0); ctx.stroke(); }
+  if(v.xmin<0&&v.xmax>0){ const x0=X(0); ctx.beginPath(); ctx.moveTo(x0,0); ctx.lineTo(x0,h); ctx.stroke(); }
+
+  /* 曲线 */
+  for(const f of plot.funcs){
+    if(!f.ast) continue;
+    ctx.strokeStyle=f.color; ctx.lineWidth=2;
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath();
+    const N=Math.min(4000,Math.max(300,Math.ceil(w*2)));
+    let pen=false, py0=0;
+    for(let i=0;i<=N;i++){
+      const x=v.xmin+(v.xmax-v.xmin)*i/N;
+      let y;
+      try{ y=evalAST(f.ast,{x, ans:0, deg:false}); }catch(_){ y=NaN; }
+      if(!isFinite(y)){ pen=false; continue; }
+      const py=Y(y);
+      if(py<-h*4||py>h*5){ pen=false; continue; }
+      const px=X(x);
+      if(!pen){ ctx.moveTo(px,py); pen=true; }
+      else if(Math.abs(py-py0)>h*1.5){ ctx.moveTo(px,py); }  /* tan 等间断处断开 */
+      else ctx.lineTo(px,py);
+      py0=py;
+    }
+    ctx.stroke();
+  }
+
+  /* 悬停十字 */
+  if(plot.hover){
+    const hh=plot.hover;
+    ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(hh.mx,0); ctx.lineTo(hh.mx,h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,hh.my); ctx.lineTo(w,hh.my); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(hh.mx,hh.my,4,0,Math.PI*2);
+    ctx.fillStyle='#C00'; ctx.fill();
+    ctx.lineWidth=1.5; ctx.strokeStyle='#fff'; ctx.stroke();
+  }
+}
+
+/* 平移 / 缩放 / 追踪 */
+function pan(dx,dy){
+  const v=plot.view;
+  const ux=(v.xmax-v.xmin)/plot.w, uy=(v.ymax-v.ymin)/plot.h;
+  v.xmin-=dx*ux; v.xmax-=dx*ux;
+  v.ymin+=dy*uy; v.ymax+=dy*uy;
+}
+function zoomAt(mx,my,factor){
+  const v=plot.view;
+  const nr=(v.xmax-v.xmin)*factor;
+  if(nr<1e-10||nr>1e12) return;
+  const wx=v.xmin+mx/plot.w*(v.xmax-v.xmin);
+  const wy=v.ymax-my/plot.h*(v.ymax-v.ymin);
+  v.xmin=wx-(wx-v.xmin)*factor;
+  v.xmax=wx+(v.xmax-wx)*factor;
+  v.ymin=wy-(wy-v.ymin)*factor;
+  v.ymax=wy+(v.ymax-wy)*factor;
+}
+function updateHover(mx,my){
+  const v=plot.view;
+  const wx=v.xmin+mx/plot.w*(v.xmax-v.xmin);
+  const wy=v.ymax-my/plot.h*(v.ymax-v.ymin);
+  plot.hover={mx,my};
+  stCoord.textContent='坐标: '+fmtNum(wx)+' , '+fmtNum(wy);
+  draw();
+}
+
+const pointers=new Map();
+cv.addEventListener('pointerdown',e=>{
+  cv.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  plot.hover=null; draw();
+});
+cv.addEventListener('pointermove',e=>{
+  const r=cv.getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  if(pointers.has(e.pointerId)){
+    const prev=pointers.get(e.pointerId);
+    if(pointers.size===1){
+      pan(e.clientX-prev.x,e.clientY-prev.y);
+    }else if(pointers.size===2){
+      const oid=[...pointers.keys()].find(id=>id!==e.pointerId);
+      const o=pointers.get(oid);
+      const od=Math.hypot(prev.x-o.x,prev.y-o.y);
+      const nd=Math.hypot(e.clientX-o.x,e.clientY-o.y);
+      const ncx=(e.clientX+o.x)/2-r.left, ncy=(e.clientY+o.y)/2-r.top;
+      const ocx=(prev.x+o.x)/2-r.left, ocy=(prev.y+o.y)/2-r.top;
+      if(od>0) zoomAt(ncx,ncy,od/nd);
+      pan(ncx-ocx,ncy-ocy);
+    }
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    draw();
+  }else if(e.pointerType==='mouse'){
+    updateHover(mx,my);
+  }
+});
+function endPointer(e){ pointers.delete(e.pointerId); }
+cv.addEventListener('pointerup',endPointer);
+cv.addEventListener('pointercancel',endPointer);
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect();
+  plot.hover=null;
+  zoomAt(e.clientX-r.left,e.clientY-r.top,Math.pow(1.0016,e.deltaY));
+  draw();
+},{passive:false});
+cv.addEventListener('dblclick',()=>{ resetView(); draw(); });
+
+document.getElementById('addFn').addEventListener('click',()=>addFn(''));
+document.getElementById('resetView').addEventListener('click',()=>{ resetView(); draw(); });
+document.getElementById('zoomIn').addEventListener('click',()=>{ zoomAt(plot.w/2,plot.h/2,0.7); draw(); });
+document.getElementById('zoomOut').addEventListener('click',()=>{ zoomAt(plot.w/2,plot.h/2,1/0.7); draw(); });
+
+const EXAMPLES=['sin(x)','x^2','x^3-3x','e^(-x^2)','1/x','tan(x)','sqrt(x)','ln(x)','abs(x)','sin(x)/x'];
+EXAMPLES.forEach(ex=>{
+  const c=document.createElement('button');
+  c.className='chip'; c.textContent=ex;
+  c.addEventListener('click',()=>addFn(ex));
+  document.getElementById('chips').appendChild(c);
+});
+
+/* =====================================================================
+ * 启动
+ * ===================================================================== */
+centerWin();
+memSync();
+refresh();
+addFn('sin(x)');
+addFn('x^2');
+new ResizeObserver(()=>resizeCanvas()).observe(canvasBox);
+window.addEventListener('resize',()=>{
+  if(isMax) return;
+  const r=win.getBoundingClientRect();
+  if(r.left<0||r.top<0||r.left>innerWidth-60) centerWin();
+});
+</script>
+</body>
+</html>
