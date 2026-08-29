@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 模拟交易</title>
+<style>
+/* ---- 设计变量(暗色交易面板,色板取自经过色盲/对比度校验的规范色板) ---- */
+:root {
+  color-scheme: dark;
+  --plane:        #0d0d0d;   /* 页面底色 */
+  --surface:      #1a1a19;   /* 卡片面 */
+  --ink:          #ffffff;   /* 主文字 */
+  --ink-2:        #c3c2b7;   /* 次级文字 */
+  --muted:        #898781;   /* 弱化文字/轴标签 */
+  --gridline:     #2c2c2a;
+  --baseline:     #383835;
+  --border:       rgba(255,255,255,0.10);
+  --series:       #3987e5;   /* 价格曲线(单一序列) */
+  --good:         #0ca30c;
+  --warning:      #fab219;
+  --critical:     #d03b3b;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--plane);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 20px;
+}
+.wrap { max-width: 1200px; margin: 0 auto; }
+
+/* ---- 顶栏 ---- */
+header { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+header h1 { font-size: 20px; font-weight: 650; }
+.chip {
+  font-size: 12px; padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--ink-2);
+}
+.chip.warn { color: #0d0d0d; background: var(--warning); border-color: var(--warning); font-weight: 600; }
+.countdown { margin-left: auto; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.countdown b { color: var(--ink); }
+
+/* ---- 演示模式横幅 ---- */
+.banner {
+  background: rgba(250,178,25,0.12); border: 1px solid rgba(250,178,25,0.4);
+  color: var(--warning); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
+  font-size: 13px;
+}
+
+/* ---- 总览数字 ---- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+}
+.stat .label { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+.stat .value { font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.stat .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.pos { color: var(--good); }
+.neg { color: var(--critical); }
+
+/* ---- 主区域布局 ---- */
+.grid { display: grid; grid-template-columns: 2fr 3fr; gap: 12px; margin-bottom: 12px; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.card h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--ink); }
+
+/* ---- AI 决策 ---- */
+.decision-main {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px; border-radius: 8px; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border); margin-bottom: 12px;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 650; padding: 4px 12px; border-radius: 6px;
+  white-space: nowrap;
+}
+.badge.buy   { background: rgba(12,163,12,0.15);  color: var(--good); border: 1px solid rgba(12,163,12,0.45); }
+.badge.sell  { background: rgba(208,59,59,0.15);  color: var(--critical); border: 1px solid rgba(208,59,59,0.45); }
+.badge.hold  { background: rgba(195,194,183,0.12); color: var(--ink-2); border: 1px solid var(--border); }
+.badge.error { background: rgba(250,178,25,0.15); color: var(--warning); border: 1px solid rgba(250,178,25,0.45); }
+.decision-main .meta { color: var(--ink-2); font-size: 13px; margin-top: 4px; }
+.decision-main .reason { color: var(--ink); font-size: 13px; margin-top: 8px; }
+.decision-main .time { color: var(--muted); font-size: 12px; margin-top: 8px; }
+.dec-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 4px; border-bottom: 1px solid var(--gridline); font-size: 13px;
+}
+.dec-item:last-child { border-bottom: none; }
+.dec-item .sym { color: var(--ink); min-width: 72px; font-weight: 600; }
+.dec-item .pct { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.dec-item .why { color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dec-item .t { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+/* ---- 图表 ---- */
+.selector { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.selector button {
+  background: transparent; color: var(--ink-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 12px; font-size: 12px; cursor: pointer;
+}
+.selector button.on {
+  color: #0d0d0d; background: var(--series); border-color: var(--series); font-weight: 600;
+}
+.chart-box { position: relative; }
+canvas { width: 100%; height: 300px; display: block; }
+.tooltip {
+  position: absolute; display: none; pointer-events: none;
+  background: rgba(13,13,13,0.92); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px; font-size: 12px; z-index: 5;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 表格 ---- */
+.tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 900px) { .tables { grid-template-columns: 1fr; } }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; color: var(--muted); font-weight: 500; font-size: 12px;
+  padding: 6px 8px; border-bottom: 1px solid var(--baseline);
+}
+td { padding: 7px 8px; border-bottom: 1px solid var(--gridline); font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: none; }
+td.num { text-align: right; }
+td.reason { color: var(--muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.empty { color: var(--muted); font-size: 13px; padding: 10px 4px; }
+
+footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🤖 AI 模拟交易</h1>
+    <span class="chip" id="provider-chip">DeepSeek</span>
+    <span class="chip warn" id="mock-chip" style="display:none">演示模式:未配置 API key</span>
+    <span class="countdown">下次 AI 决策: <b id="countdown">--:--</b></span>
+  </header>
+
+  <div class="banner" id="mock-banner" style="display:none">
+    ⚠️ 演示模式:config.json 中还没有 API key,当前由内置规则模拟决策。
+    在 config.json 填入大模型 key 并重启程序,即可启用真正的 AI 决策。
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">总资产 (USDT)</div><div class="value" id="s-total">--</div><div class="sub" id="s-vs">初始 100,000</div></div>
+    <div class="stat"><div class="label">收益率</div><div class="value" id="s-return">--</div><div class="sub" id="s-pnl">已实现盈亏 --</div></div>
+    <div class="stat"><div class="label">可用现金 (USDT)</div><div class="value" id="s-cash">--</div><div class="sub" id="s-posval">持仓市值 --</div></div>
+    <div class="stat"><div class="label">最近一次决策</div><div class="value" id="s-lastact" style="font-size:18px">--</div><div class="sub" id="s-lasttime">等待首个周期…</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>🧠 AI 思考与决策</h2>
+      <div id="decision-main">
+        <div class="empty">等待 AI 做出第一个决策…</div>
+      </div>
+      <div id="decision-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>📈 价格走势(5 分钟采样)</h2>
+      <div class="selector" id="selector"></div>
+      <div class="chart-box">
+        <canvas id="chart"></canvas>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tables">
+    <div class="card">
+      <h2>💼 当前持仓</h2>
+      <table>
+        <thead><tr><th>币种</th><th class="num">数量</th><th class="num">均价</th><th class="num">现价</th><th class="num">市值</th><th class="num">浮动盈亏</th></tr></thead>
+        <tbody id="pos-body"><tr><td colspan="6" class="empty">暂无持仓</td></tr></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>📜 交易记录</h2>
+      <table>
+        <thead><tr><th>时间</th><th>方向</th><th>币种</th><th class="num">价格</th><th class="num">金额</th><th>理由</th></tr></thead>
+        <tbody id="trade-body"><tr><td colspan="6" class="empty">暂无成交</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>行情来自币安现货公开接口 · 全部为模拟资金 · REST API 见 README.md · 更新于 <span id="updated">--</span></footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let state = null;
+let selectedSymbol = null;
+let hoverIdx = null;
+
+const ACT = {
+  buy:  { text: '▲ 买入', cls: 'buy' },
+  sell: { text: '▼ 卖出', cls: 'sell' },
+  hold: { text: '— 观望', cls: 'hold' },
+  error:{ text: '⚠ 出错', cls: 'error' },
+};
+
+function fmt(n, d = 2) {
+  if (n === null || n === undefined || isNaN(n)) return '--';
+  return Number(n).toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+function fmtPrice(n) {
+  if (n === null || n === undefined || isNaN(n)) return '--';
+  if (n >= 1000) return fmt(n, 2);
+  if (n >= 1) return fmt(n, 4);
+  return fmt(n, 6);
+}
+function cls(v) { return v >= 0 ? 'pos' : 'neg'; }
+function sign(v) { return v >= 0 ? '+' : ''; }
+
+async function refresh() {
+  try {
+    const r = await fetch('/api/state');
+    state = await r.json();
+    render();
+  } catch (e) {
+    $('updated').textContent = '连接失败,重试中…';
+  }
+}
+
+function render() {
+  if (!state) return;
+  const a = state.account;
+  $('s-total').textContent = fmt(a.total);
+  $('s-vs').textContent = '初始 ' + fmt(a.initial, 0);
+  const ret = $('s-return');
+  ret.textContent = sign(a.return_pct) + a.return_pct + '%';
+  ret.className = 'value ' + cls(a.return_pct);
+  $('s-pnl').textContent = '已实现盈亏 ' + fmt(a.realized_pnl);
+  $('s-cash').textContent = fmt(a.cash);
+  $('s-posval').textContent = '持仓市值 ' + fmt(a.position_value);
+
+  const ld = state.last_decision;
+  if (ld) {
+    const act = ACT[ld.action] || ACT.error;
+    $('s-lastact').textContent = act.text;
+    $('s-lastact').style.color = 'var(--ink)';
+    $('s-lasttime').textContent = (ld.time || '') + (ld.mock ? ' · 演示' : '');
+  }
+
+  // 演示模式提示
+  const mock = state.mock_mode;
+  $('mock-chip').style.display = mock ? '' : 'none';
+  $('mock-banner').style.display = mock ? '' : 'none';
+  $('provider-chip').textContent = (state.provider || '').toUpperCase() + (state.model ? ' · ' + state.model : '');
+
+  renderDecisions();
+  renderPositions();
+  renderTrades();
+  renderChart();
+  $('updated').textContent = state.last_update || '--';
+}
+
+function renderDecisions() {
+  const box = $('decision-main');
+  const ld = state.last_decision;
+  if (ld && ld.action !== 'error') {
+    const act = ACT[ld.action] || ACT.hold;
+    box.innerHTML =
+      '<div class="badge ' + act.cls + '">' + act.text + '</div>' +
+      '<div>' +
+        '<div class="meta">' + ld.symbol + ' · ' + (ld.percent || 0) + '%' + (ld.mock ? ' · 演示决策' : '') + '</div>' +
+        '<div class="reason">“' + escapeHtml(ld.reason || '') + '”</div>' +
+        '<div class="time">' + (ld.time || '') + (ld.exec_note ? ' · ' + escapeHtml(ld.exec_note) : '') + '</div>' +
+      '</div>';
+  } else if (ld && ld.action === 'error') {
+    box.innerHTML = '<div class="badge error">⚠ 决策失败</div><div><div class="reason">' + escapeHtml(ld.error || '') + '</div><div class="time">' + (ld.time || '') + '</div></div>';
+  }
+  const list = $('decision-list');
+  const items = (state.decisions || []).filter(d => d.action !== 'error').slice(0, 8);
+  list.innerHTML = items.map(d => {
+    const act = ACT[d.action] || ACT.hold;
+    return '<div class="dec-item">' +
+      '<span class="badge ' + act.cls + '" style="font-size:11px;padding:2px 8px">' + act.text + '</span>' +
+      '<span class="sym">' + d.symbol + '</span>' +
+      '<span class="pct">' + (d.percent || 0) + '%</span>' +
+      '<span class="why">' + escapeHtml(d.reason || '') + '</span>' +
+      '<span class="t">' + (d.time || '').slice(11, 16) + '</span>' +
+      '</div>';
+  }).join('') || '<div class="empty">暂无决策记录</div>';
+}
+
+function renderPositions() {
+  const tb = $('pos-body');
+  const ps = state.positions || [];
+  if (!ps.length) { tb.innerHTML = '<tr><td colspan="6" class="empty">暂无持仓</td></tr>'; return; }
+  tb.innerHTML = ps.map(p =>
+    '<tr><td>' + p.symbol.replace('/USDT','') + '</td>' +
+    '<td class="num">' + fmt(p.qty, 6) + '</td>' +
+    '<td class="num">' + fmtPrice(p.avg_price) + '</td>' +
+    '<td class="num">' + fmtPrice(p.price) + '</td>' +
+    '<td class="num">' + fmt(p.value) + '</td>' +
+    '<td class="num ' + cls(p.pnl_pct) + '">' + sign(p.pnl_pct) + fmt(p.pnl_pct) + '%</td></tr>'
+  ).join('');
+}
+
+function renderTrades() {
+  const tb = $('trade-body');
+  const ts = state.trades || [];
+  if (!ts.length) { tb.innerHTML = '<tr><td colspan="6" class="empty">暂无成交</td></tr>'; return; }
+  tb.innerHTML = ts.map(t => {
+    const act = t.side === 'buy' ? ACT.buy : ACT.sell;
+    return '<tr><td>' + (t.time || '').slice(11) + '</td>' +
+      '<td><span class="badge ' + act.cls + '" style="font-size:11px;padding:2px 8px">' + act.text + '</span></td>' +
+      '<td>' + t.symbol.replace('/USDT','') + '</td>' +
+      '<td class="num">' + fmtPrice(t.price) + '</td>' +
+      '<td class="num">' + fmt(t.value) + '</td>' +
+      '<td class="reason" title="' + escapeHtml(t.reason || '') + '">' + escapeHtml(t.reason || '') + '</td></tr>';
+  }).join('');
+}
+
+/* ---------------- 价格曲线 ---------------- */
+const canvas = $('chart');
+const ctx = canvas.getContext('2d');
+
+function initSelector() {
+  if (!state || state.symbols.length === 0) return;
+  if (!selectedSymbol || !state.symbols.includes(selectedSymbol)) {
+    selectedSymbol = state.symbols[0];
+  }
+  const sel = $('selector');
+  sel.innerHTML = state.symbols.map(s =>
+    '<button class="' + (s === selectedSymbol ? 'on' : '') + '" data-s="' + s + '">' + s.replace('/USDT','') + '</button>'
+  ).join('');
+  sel.querySelectorAll('button').forEach(b => b.onclick = () => {
+    selectedSymbol = b.dataset.s;
+    initSelector();
+    renderChart();
+  });
+}
+
+function drawChart() {
+  const css = getComputedStyle(canvas);
+  const W = parseFloat(css.width), H = parseFloat(css.height);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const series = (state.price_history || [])
+    .filter(p => p.prices && p.prices[selectedSymbol] !== undefined)
+    .map(p => ({ t: p.time, v: p.prices[selectedSymbol] }));
+
+  const pad = { l: 58, r: 14, t: 12, b: 26 };
+  const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+  if (series.length < 2 || iw <= 0 || ih <= 0) {
+    ctx.fillStyle = '#898781';
+    ctx.font = '13px system-ui';
+    ctx.fillText('等待积累价格数据…(每个决策周期采样一次)', pad.l, H / 2);
+    return;
+  }
+
+  const vs = series.map(p => p.v);
+  let min = Math.min(...vs), max = Math.max(...vs);
+  if (min === max) { min -= 1; max += 1; }
+  const range = max - min;
+  min -= range * 0.08; max += range * 0.08;
+  const X = (i) => pad.l + (series.length === 1 ? iw / 2 : i * iw / (series.length - 1));
+  const Y = (v) => pad.t + ih * (1 - (v - min) / (max - min));
+
+  // 网格与 Y 轴刻度
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const v = min + (max - min) * i / ticks;
+    const y = Y(v);
+    ctx.strokeStyle = '#2c2c2a'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#898781';
+    ctx.fillText(fmtPrice(v), pad.l - 8, y);
+  }
+  // X 轴时间刻度
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const xSteps = Math.min(4, series.length - 1);
+  for (let i = 0; i <= xSteps; i++) {
+    const idx = Math.round(i * (series.length - 1) / xSteps);
+    const p = series[idx];
+    ctx.fillStyle = '#898781';
+    ctx.fillText(p.t.slice(11, 16), X(idx), pad.t + ih + 8);
+  }
+
+  // 面积填充 + 曲线
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ih);
+  grad.addColorStop(0, 'rgba(57,135,229,0.28)');
+  grad.addColorStop(1, 'rgba(57,135,229,0)');
+  ctx.beginPath();
+  ctx.moveTo(X(0), Y(series[0].v));
+  series.forEach((p, i) => ctx.lineTo(X(i), Y(p.v)));
+  ctx.lineTo(X(series.length - 1), pad.t + ih);
+  ctx.lineTo(X(0), pad.t + ih);
+  ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+
+  ctx.beginPath();
+  series.forEach((p, i) => i === 0 ? ctx.moveTo(X(i), Y(p.v)) : ctx.lineTo(X(i), Y(p.v)));
+  ctx.strokeStyle = '#3987e5'; ctx.lineWidth = 2;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // 悬停十字线与点
+  if (hoverIdx !== null && hoverIdx >= 0 && hoverIdx < series.length) {
+    const x = X(hoverIdx), y = Y(series[hoverIdx].v);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ih); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#3987e5';
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#0d0d0d'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.stroke();
+  }
+}
+
+function renderChart() {
+  initSelector();
+  hoverIdx = null;
+  drawChart();
+}
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const css = getComputedStyle(canvas);
+  const W = parseFloat(css.width), H = parseFloat(css.height);
+  const padL = 58;
+  const iw = W - padL - 14;
+  const series = (state.price_history || [])
+    .filter(p => p.prices && p.prices[selectedSymbol] !== undefined);
+  if (series.length < 2) return;
+  const x = e.clientX - rect.left;
+  const idx = Math.round((x - padL) / iw * (series.length - 1));
+  hoverIdx = Math.max(0, Math.min(series.length - 1, idx));
+  drawChart();
+  const tip = $('tooltip');
+  tip.style.display = 'block';
+  tip.style.left = Math.min(x + 12, W - 140) + 'px';
+  tip.style.top = Math.max(6, e.clientY - rect.top - 34) + 'px';
+  tip.innerHTML = '<div style="color:#c3c2b7">' + series[hoverIdx].t + '</div>' +
+    '<div style="color:#fff;font-weight:600">' + selectedSymbol.replace('/USDT','') + ': ' + fmtPrice(series[hoverIdx].v) + '</div>';
+});
+canvas.addEventListener('mouseleave', () => {
+  hoverIdx = null;
+  $('tooltip').style.display = 'none';
+  drawChart();
+});
+window.addEventListener('resize', () => { drawChart(); });
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* 倒计时 */
+setInterval(() => {
+  if (!state || !state.next_decision_at) return;
+  const left = Math.max(0, Math.round(state.next_decision_at - Date.now() / 1000));
+  const m = String(Math.floor(left / 60)).padStart(2, '0');
+  const s = String(left % 60).padStart(2, '0');
+  $('countdown').textContent = m + ':' + s;
+}, 1000);
+
+refresh();
+setInterval(refresh, 8000);
+</script>
+</body>
+</html>

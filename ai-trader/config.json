@@ -1,0 +1,15 @@
+{
+  "llm": {
+    "provider": "deepseek",
+    "api_key": "sk-6c60f0e04742487d8f604e785dd4b1ab",
+    "model": "deepseek-chat",
+    "base_url": "https://api.deepseek.com"
+  },
+  "symbols": ["BTC/USDT", "ETH/USDT", "SOL/USDT", "DOGE/USDT"],
+  "cycle_seconds": 60,
+  "initial_cash": 100000,
+  "fee_rate": 0.001,
+  "min_notional": 10,
+  "host": "127.0.0.1",
+  "port": 8000
+}

@@ -1,0 +1,613 @@
+{
+  "start_cash": 100000,
+  "cash": 89990.0,
+  "positions": {
+    "BTC/USDT": {
+      "qty": 0.15693844481848107,
+      "avg_price": 63719.25
+    }
+  },
+  "realized_pnl": 0.0,
+  "trades": [
+    {
+      "time": "2026-08-13 21:46:12",
+      "symbol": "BTC/USDT",
+      "side": "buy",
+      "qty": 0.15693844,
+      "price": 63719.25,
+      "value": 10000.0,
+      "fee": 10.0,
+      "reason": "演示模式:按规则建仓,配置 API key 后由 AI 决策"
+    }
+  ],
+  "decisions": [
+    {
+      "action": "buy",
+      "symbol": "BTC/USDT",
+      "percent": 10.0,
+      "reason": "演示模式:按规则建仓,配置 API key 后由 AI 决策",
+      "mock": true,
+      "time": "2026-08-13 21:46:12"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "演示模式:已有持仓,继续持有观望",
+      "mock": true,
+      "time": "2026-08-13 21:49:32"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "演示模式:已有持仓,继续持有观望",
+      "mock": true,
+      "time": "2026-08-13 21:51:13"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:56:48"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:57:00"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:57:13"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:57:25"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:57:37"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:57:49"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:58:02"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:58:13"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:58:25"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:58:37"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:58:49"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:59:02"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:59:14"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:59:26"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 21:59:37"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 22:00:40"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 22:01:42"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 22:02:44"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微亏，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 22:03:45"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微亏，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 22:04:48"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微利，暂观望。",
+      "mock": false,
+      "time": "2026-08-13 22:05:50"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC横盘整理，趋势不明，持仓微亏，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:06:52"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC横盘整理，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:07:54"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡趋势不明，持仓微亏，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:08:56"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:09:59"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:11:01"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:12:04"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:13:06"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:14:08"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:15:11"
+    },
+    {
+      "action": "hold",
+      "symbol": "BTC/USDT",
+      "percent": 0,
+      "reason": "BTC窄幅震荡，趋势不明，持仓微盈，无明确信号，观望。",
+      "mock": false,
+      "time": "2026-08-13 22:16:13"
+    }
+  ],
+  "price_history": [
+    {
+      "time": "2026-08-13 21:46:09",
+      "prices": {
+        "BTC/USDT": 63719.25,
+        "ETH/USDT": 1891.18,
+        "SOL/USDT": 76.22,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:49:31",
+      "prices": {
+        "BTC/USDT": 63808.53,
+        "ETH/USDT": 1892.36,
+        "SOL/USDT": 76.26,
+        "DOGE/USDT": 0.07027
+      }
+    },
+    {
+      "time": "2026-08-13 21:51:12",
+      "prices": {
+        "BTC/USDT": 63766.0,
+        "ETH/USDT": 1891.17,
+        "SOL/USDT": 76.24,
+        "DOGE/USDT": 0.07027
+      }
+    },
+    {
+      "time": "2026-08-13 21:56:41",
+      "prices": {
+        "BTC/USDT": 63743.99,
+        "ETH/USDT": 1889.71,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:56:58",
+      "prices": {
+        "BTC/USDT": 63738.29,
+        "ETH/USDT": 1889.71,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07021
+      }
+    },
+    {
+      "time": "2026-08-13 21:57:10",
+      "prices": {
+        "BTC/USDT": 63736.29,
+        "ETH/USDT": 1889.93,
+        "SOL/USDT": 76.19,
+        "DOGE/USDT": 0.0702
+      }
+    },
+    {
+      "time": "2026-08-13 21:57:23",
+      "prices": {
+        "BTC/USDT": 63749.96,
+        "ETH/USDT": 1890.28,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:57:35",
+      "prices": {
+        "BTC/USDT": 63738.0,
+        "ETH/USDT": 1889.89,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:57:47",
+      "prices": {
+        "BTC/USDT": 63738.01,
+        "ETH/USDT": 1889.83,
+        "SOL/USDT": 76.19,
+        "DOGE/USDT": 0.07021
+      }
+    },
+    {
+      "time": "2026-08-13 21:57:59",
+      "prices": {
+        "BTC/USDT": 63740.25,
+        "ETH/USDT": 1889.82,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:58:12",
+      "prices": {
+        "BTC/USDT": 63750.81,
+        "ETH/USDT": 1890.24,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:58:23",
+      "prices": {
+        "BTC/USDT": 63754.64,
+        "ETH/USDT": 1890.52,
+        "SOL/USDT": 76.21,
+        "DOGE/USDT": 0.07024
+      }
+    },
+    {
+      "time": "2026-08-13 21:58:35",
+      "prices": {
+        "BTC/USDT": 63759.16,
+        "ETH/USDT": 1890.53,
+        "SOL/USDT": 76.21,
+        "DOGE/USDT": 0.07024
+      }
+    },
+    {
+      "time": "2026-08-13 21:58:47",
+      "prices": {
+        "BTC/USDT": 63728.79,
+        "ETH/USDT": 1889.71,
+        "SOL/USDT": 76.17,
+        "DOGE/USDT": 0.0702
+      }
+    },
+    {
+      "time": "2026-08-13 21:58:59",
+      "prices": {
+        "BTC/USDT": 63727.57,
+        "ETH/USDT": 1889.85,
+        "SOL/USDT": 76.18,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:59:12",
+      "prices": {
+        "BTC/USDT": 63731.89,
+        "ETH/USDT": 1890.12,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:59:24",
+      "prices": {
+        "BTC/USDT": 63718.19,
+        "ETH/USDT": 1889.86,
+        "SOL/USDT": 76.19,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 21:59:36",
+      "prices": {
+        "BTC/USDT": 63712.0,
+        "ETH/USDT": 1889.71,
+        "SOL/USDT": 76.19,
+        "DOGE/USDT": 0.0702
+      }
+    },
+    {
+      "time": "2026-08-13 22:00:37",
+      "prices": {
+        "BTC/USDT": 63719.99,
+        "ETH/USDT": 1890.52,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 22:01:40",
+      "prices": {
+        "BTC/USDT": 63734.0,
+        "ETH/USDT": 1890.48,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 22:02:42",
+      "prices": {
+        "BTC/USDT": 63753.99,
+        "ETH/USDT": 1891.84,
+        "SOL/USDT": 76.22,
+        "DOGE/USDT": 0.07025
+      }
+    },
+    {
+      "time": "2026-08-13 22:03:44",
+      "prices": {
+        "BTC/USDT": 63710.72,
+        "ETH/USDT": 1890.53,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07021
+      }
+    },
+    {
+      "time": "2026-08-13 22:04:46",
+      "prices": {
+        "BTC/USDT": 63688.2,
+        "ETH/USDT": 1889.45,
+        "SOL/USDT": 76.17,
+        "DOGE/USDT": 0.07019
+      }
+    },
+    {
+      "time": "2026-08-13 22:05:48",
+      "prices": {
+        "BTC/USDT": 63728.0,
+        "ETH/USDT": 1889.99,
+        "SOL/USDT": 76.19,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 22:06:50",
+      "prices": {
+        "BTC/USDT": 63688.56,
+        "ETH/USDT": 1888.9,
+        "SOL/USDT": 76.15,
+        "DOGE/USDT": 0.07017
+      }
+    },
+    {
+      "time": "2026-08-13 22:07:52",
+      "prices": {
+        "BTC/USDT": 63755.61,
+        "ETH/USDT": 1890.74,
+        "SOL/USDT": 76.23,
+        "DOGE/USDT": 0.07017
+      }
+    },
+    {
+      "time": "2026-08-13 22:08:54",
+      "prices": {
+        "BTC/USDT": 63718.01,
+        "ETH/USDT": 1889.56,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07011
+      }
+    },
+    {
+      "time": "2026-08-13 22:09:56",
+      "prices": {
+        "BTC/USDT": 63725.99,
+        "ETH/USDT": 1889.89,
+        "SOL/USDT": 76.2,
+        "DOGE/USDT": 0.07014
+      }
+    },
+    {
+      "time": "2026-08-13 22:10:59",
+      "prices": {
+        "BTC/USDT": 63736.0,
+        "ETH/USDT": 1890.62,
+        "SOL/USDT": 76.22,
+        "DOGE/USDT": 0.07018
+      }
+    },
+    {
+      "time": "2026-08-13 22:12:01",
+      "prices": {
+        "BTC/USDT": 63774.0,
+        "ETH/USDT": 1891.98,
+        "SOL/USDT": 76.31,
+        "DOGE/USDT": 0.07022
+      }
+    },
+    {
+      "time": "2026-08-13 22:13:04",
+      "prices": {
+        "BTC/USDT": 63839.99,
+        "ETH/USDT": 1894.55,
+        "SOL/USDT": 76.43,
+        "DOGE/USDT": 0.07037
+      }
+    },
+    {
+      "time": "2026-08-13 22:14:06",
+      "prices": {
+        "BTC/USDT": 63833.99,
+        "ETH/USDT": 1893.45,
+        "SOL/USDT": 76.39,
+        "DOGE/USDT": 0.07023
+      }
+    },
+    {
+      "time": "2026-08-13 22:15:08",
+      "prices": {
+        "BTC/USDT": 63812.0,
+        "ETH/USDT": 1892.86,
+        "SOL/USDT": 76.36,
+        "DOGE/USDT": 0.07018
+      }
+    },
+    {
+      "time": "2026-08-13 22:16:11",
+      "prices": {
+        "BTC/USDT": 63865.38,
+        "ETH/USDT": 1893.57,
+        "SOL/USDT": 76.41,
+        "DOGE/USDT": 0.07022
+      }
+    }
+  ],
+  "last_prices": {
+    "BTC/USDT": 63865.38,
+    "ETH/USDT": 1893.57,
+    "SOL/USDT": 76.41,
+    "DOGE/USDT": 0.07022
+  },
+  "last_update": "2026-08-13 22:16:11",
+  "next_decision_at": 1786630633.2184527
+}
